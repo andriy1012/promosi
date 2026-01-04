@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "sistem-rekomendasi-promosi"
+version = "0.1.0"
+description = "Sistem Rekomendasi Promosi PT. Natura Boga"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.0.3"
+flask-sqlalchemy = "^3.1.1"
+pandas = "^2.2.2"
+numpy = "^1.26.0"
+mlxtend = "^0.23.1"
+scikit-learn = "^1.5.0"
+plotly = "^5.22.0"
+werkzeug = "^3.0.3"
+openpyxl = "^3.1.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
