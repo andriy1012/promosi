@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-speedometer2"></i> Dashboard</h2>
+        <p class="text-muted">Ringkasan data dan statistik sistem rekomendasi promosi</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-primary">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <div class="stat-value">{{ "{:,}".format(stats.total_transactions) }}</div>
+            <div class="stat-label">Total Transaksi</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-success">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stat-value">{{ "{:,}".format(stats.total_customers) }}</div>
+            <div class="stat-label">Total Pelanggan</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-info">
+                <i class="bi bi-box-seam"></i>
+            </div>
+            <div class="stat-value">{{ "{:,}".format(stats.total_products) }}</div>
+            <div class="stat-label">Total Produk</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon text-warning">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="stat-value">Rp {{ "{:,.0f}".format(stats.total_revenue) }}</div>
+            <div class="stat-label">Total Pendapatan</div>
+        </div>
+    </div>
+</div>
+
+<!-- Information Cards -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-info-circle"></i> Tentang Sistem
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Sistem Rekomendasi Promosi</h5>
+                <p class="card-text">
+                    Sistem ini membantu PT. Natura Boga dalam menganalisis pola pembelian produk minuman 
+                    dan perilaku pelanggan menggunakan:
+                </p>
+                <ul>
+                    <li><strong>Market Basket Analysis (Algoritma Apriori)</strong>: Menemukan produk yang sering dibeli bersamaan</li>
+                    <li><strong>Segmentasi Pelanggan (RFM + K-Means)</strong>: Mengelompokkan pelanggan berdasarkan perilaku pembelian</li>
+                </ul>
+                <p class="card-text">
+                    Dengan sistem ini, strategi promosi dapat dibuat lebih <strong>data-driven</strong> dan <strong>targeted</strong>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-check"></i> Panduan Penggunaan
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Langkah-langkah Penggunaan</h5>
+                <ol>
+                    <li><strong>Upload Data Transaksi</strong>
+                        <br><small class="text-muted">Upload file CSV/Excel dengan kolom: transaction_id, date, customer_id, product, quantity (optional), price (optional)</small>
+                    </li>
+                    <li><strong>Analisis Market Basket Analysis</strong>
+                        <br><small class="text-muted">Atur parameter min_support dan min_confidence, lalu jalankan analisis untuk menemukan pola asosiasi produk</small>
+                    </li>
+                    <li><strong>Analisis Segmentasi Pelanggan</strong>
+                        <br><small class="text-muted">Tentukan jumlah cluster (K), sistem akan mengelompokkan pelanggan berdasarkan RFM</small>
+                    </li>
+                    <li><strong>Lihat Rekomendasi</strong>
+                        <br><small class="text-muted">Sistem akan memberikan rekomendasi bundling produk dan target pelanggan untuk promosi</small>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('data_transaksi') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-upload"></i><br>Upload Data
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('analisis_mba') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-basket"></i><br>Analisis MBA
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('segmentasi') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-diagram-3"></i><br>Segmentasi
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{{ url_for('rekomendasi') }}" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-lightbulb"></i><br>Rekomendasi
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

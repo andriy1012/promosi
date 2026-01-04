@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Data Transaksi{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-table"></i> Data Transaksi</h2>
+        <p class="text-muted">Kelola data transaksi penjualan produk minuman</p>
+    </div>
+</div>
+
+<!-- Upload Form -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-upload"></i> Upload Data Transaksi
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+                    <div class="row align-items-end">
+                        <div class="col-md-8">
+                            <label for="file" class="form-label">Pilih File CSV atau Excel</label>
+                            <input type="file" class="form-control" id="file" name="file" accept=".csv,.xlsx" required>
+                            <small class="text-muted">
+                                Format kolom: <code>transaction_id, date, customer_id, product, quantity, price, total</code> (harus)<br>
+                            </small>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="row mb-3">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ "{:,}".format(stats.total_transactions) }}</div>
+            <div class="stat-label">Transaksi</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ "{:,}".format(stats.total_customers) }}</div>
+            <div class="stat-label">Pelanggan</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ "{:,}".format(stats.total_products) }}</div>
+            <div class="stat-label">Produk</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <form action="{{ url_for('delete_all') }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus SEMUA data transaksi?');">
+            <button type="submit" class="btn btn-danger w-100">
+                <i class="bi bi-trash"></i> Hapus Semua Data
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list"></i> Daftar Transaksi
+            </div>
+            <div class="card-body">
+                {% if transactions %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Transaction ID</th>
+                                <th>Tanggal</th>
+                                <th>Customer ID</th>
+                                <th>Produk</th>
+                                <th>Qty</th>
+                                <th>Harga</th>
+                                <th>Total</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transactions[:100] %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ t.transaction_id }}</td>
+                                <td>{{ t.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>{{ t.customer_id }}</td>
+                                <td>{{ t.product }}</td>
+                                <td>{{ t.quantity }}</td>
+                                <td>Rp {{ "{:,.0f}".format(t.price) }}</td>
+                                <td>Rp {{ "{:,.0f}".format(t.total) }}</td>
+                                <td>
+                                    <form action="{{ url_for('delete', id=t.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if transactions|length > 100 %}
+                    <p class="text-muted text-center">Menampilkan 100 data pertama dari {{ transactions|length }} total data</p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Belum ada data transaksi. Silakan upload file terlebih dahulu.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

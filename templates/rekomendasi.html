@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Rekomendasi Promosi{% endblock %}
+
+{% block content %}
+<style>
+    @media (max-width: 768px) {
+        .table-responsive .text-nowrap {
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.5rem 0.25rem;
+            font-size: 0.9em;
+        }
+
+        .table td small {
+            font-size: 0.85em;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .table th,
+        .table td {
+            padding: 0.4rem 0.2rem;
+        }
+
+        .badge {
+            font-size: 0.8em;
+        }
+    }
+</style>
+<div class="row mb-4">
+    <div class="col-12">
+        <h2><i class="bi bi-lightbulb"></i> Rekomendasi Promosi</h2>
+        <p class="text-muted">Strategi promosi berdasarkan hasil Market Basket Analysis dan Segmentasi Pelanggan</p>
+    </div>
+</div>
+
+<!-- Bundling Recommendations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <i class="bi bi-box-seam"></i> Rekomendasi Bundling Produk
+            </div>
+            <div class="card-body">
+                {% if bundling_recommendations %}
+                <p><strong>Berdasarkan Market Basket Analysis, berikut adalah rekomendasi paket bundling produk:</strong></p>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Produk Utama</th>
+                                <th></th>
+                                <th>Bundling Dengan</th>
+                                <th>Lift</th>
+                                <th>Confidence</th>
+                                <th>Strategi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rec in bundling_recommendations %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="text-nowrap"><span class="badge bg-primary">{{ rec.produk_utama }}</span></td>
+                                <td class="text-center"><i class="bi bi-plus-circle text-success"></i></td>
+                                <td class="text-nowrap"><span class="badge bg-success">{{ rec.produk_bundling }}</span></td>
+                                <td>
+                                    {% if rec.lift >= 2 %}
+                                    <span class="badge bg-success">{{ rec.lift|round(2) }}</span>
+                                    {% else %}
+                                    <span class="badge bg-warning">{{ rec.lift|round(2) }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ rec.confidence|round(2) }}%</td>
+                                <td class="text-nowrap">
+                                    <small class="text-muted">
+                                        Buat paket promo "Beli {{ rec.produk_utama }} + {{ rec.produk_bundling }}" dengan diskon
+                                    </small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <strong><i class="bi bi-info-circle"></i> Cara Membacanya:</strong>
+                    <ul class="mb-0">
+                        <li><strong>Lift &gt;2</strong> : Artinya produk ini sering dibeli bersamaan (asosiasi kuat)</li>
+                        <li><strong>Confidence</strong> : Menunjukkan berapa persen pelanggan yang beli produk A juga beli produk B</li>
+                        <li><strong>Strategi</strong> : Buat paket promosi untuk pasangan produk yang sering dibeli bersama</li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    Belum ada rekomendasi bundling. Silakan jalankan <a href="{{ url_for('analisis_mba') }}" class="alert-link">Analisis MBA</a> terlebih dahulu.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Targeting Recommendations -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <i class="bi bi-people"></i> Rekomendasi Target Pelanggan
+            </div>
+            <div class="card-body">
+                {% if best_customers or potential_customers or lost_customers %}
+                <div class="row">
+                    <!-- Best Customers -->
+                    <div class="col-12 col-md-4 mb-3">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <strong>Best Customers ({{ total_best }})</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Karakteristik:</strong></p>
+                                <ul>
+                                    <li>Recency rendah (baru beli)</li>
+                                    <li>Frequency tinggi (sering beli)</li>
+                                    <li>Monetary tinggi (pengeluaran besar)</li>
+                                </ul>
+                                <p><strong>Strategi:</strong></p>
+                                <ul class="text-success">
+                                    <li>Berikan reward loyalty program</li>
+                                    <li>Early access produk baru</li>
+                                    <li>Diskon eksklusif VIP</li>
+                                </ul>
+                                {% if best_customers %}
+                                <p class="mb-1"><strong>Contoh Customer ID:</strong></p>
+                                {% for customer in best_customers[:5] %}
+                                <span class="badge bg-success me-1">{{ customer.customer_id }}</span>
+                                {% endfor %}
+                                {% if total_best > 5 %}
+                                <p class="text-muted mt-2"><small>+{{ total_best - 5 }} lainnya</small></p>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Potential Customers -->
+                    <div class="col-12 col-md-4 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning text-white">
+                                <strong>Potential Customers ({{ total_potential }})</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Karakteristik:</strong></p>
+                                <ul>
+                                    <li>Recency sedang</li>
+                                    <li>Frequency sedang</li>
+                                    <li>Monetary sedang</li>
+                                </ul>
+                                <p><strong>Strategi:</strong></p>
+                                <ul class="text-warning">
+                                    <li>Push notification promosi</li>
+                                    <li>Cross-selling produk terkait</li>
+                                    <li>Diskon untuk pembelian berikutnya</li>
+                                </ul>
+                                {% if potential_customers %}
+                                <p class="mb-1"><strong>Contoh Customer ID:</strong></p>
+                                {% for customer in potential_customers[:5] %}
+                                <span class="badge bg-warning text-dark me-1">{{ customer.customer_id }}</span>
+                                {% endfor %}
+                                {% if total_potential > 5 %}
+                                <p class="text-muted mt-2"><small>+{{ total_potential - 5 }} lainnya</small></p>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lost Customers -->
+                    <div class="col-12 col-md-4 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <strong>Lost Customers ({{ total_lost }})</strong>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Karakteristik:</strong></p>
+                                <ul>
+                                    <li>Recency tinggi (lama tidak beli)</li>
+                                    <li>Frequency rendah</li>
+                                    <li>Monetary rendah</li>
+                                </ul>
+                                <p><strong>Strategi:</strong></p>
+                                <ul class="text-danger">
+                                    <li>Kampanye re-engagement</li>
+                                    <li>Diskon comeback special</li>
+                                    <li>Survey feedback pelanggan</li>
+                                </ul>
+                                {% if lost_customers %}
+                                <p class="mb-1"><strong>Contoh Customer ID:</strong></p>
+                                {% for customer in lost_customers[:5] %}
+                                <span class="badge bg-danger me-1">{{ customer.customer_id }}</span>
+                                {% endfor %}
+                                {% if total_lost > 5 %}
+                                <p class="text-muted mt-2"><small>+{{ total_lost - 5 }} lainnya</small></p>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> 
+                    Belum ada rekomendasi target pelanggan. Silakan jalankan <a href="{{ url_for('segmentasi') }}" class="alert-link">Analisis Segmentasi</a> terlebih dahulu.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!--
+ Action Plan 
+<div class="row">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-clipboard-check"></i> Action Plan Promosi
+            </div>
+            <div class="card-body">
+                <h5>Langkah-langkah Implementasi:</h5>
+                <ol>
+                    <li><strong>Minggu 1-2: Persiapan</strong>
+                        <ul>
+                            <li>Siapkan materi promosi bundling produk</li>
+                            <li>Segmentasi database pelanggan sesuai hasil clustering</li>
+                            <li>Tentukan diskon dan mekanisme promosi</li>
+                        </ul>
+                    </li>
+                    <li><strong>Minggu 3-4: Pelaksanaan</strong>
+                        <ul>
+                            <li>Launch bundling produk dengan diskon</li>
+                            <li>Kirim promosi targeted ke Best & Potential Customers</li>
+                            <li>Kampanye re-engagement untuk Lost Customers</li>
+                        </ul>
+                    </li>
+                    <li><strong>Minggu 5-6: Evaluasi</strong>
+                        <ul>
+                            <li>Monitor penjualan dan response rate</li>
+                            <li>Analisis ROI promosi</li>
+                            <li>Adjust strategi berdasarkan hasil</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+-->
+
+{% endblock %}
